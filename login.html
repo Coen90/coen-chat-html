@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+  <!-- Latest compiled and minified CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="container">
+    <form class="form-signin">
+      <h2 class="form-signin-heading">Please sign in</h2>
+      <label for="email" class="sr-only">Email address</label>
+      <input type="email" id="email" class="form-control" placeholder="Email address" required="" autofocus="" maxlength="100"/>
+      <label for="password" class="sr-only">Password</label>
+      <input type="password" id="password" class="form-control" placeholder="Password" required="" maxlength="20"/>
+      <br/>
+      <button id="login-button" class="btn btn-lg btn-primary btn-block">
+        로그인
+      </button>
+      <button id="join-button" class="btn btn-lg btn-warning btn-block">
+        회원가입
+      </button>
+    </form>
+  </div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+<script>
+  $(() => {
+    
+    const $form = $(".form-signin")
+    const host = "34.125.167.204:31060" // cloud
+    // const host = "localhost:8080" // local
+
+    // set Cookie
+    function setCookie() {
+      // 참고자료 : https://cofs.tistory.com/363
+      var date = new Date();
+      date.setTime(date.getTime() + 60 * 60 * 24 * 100);
+      document.cookie = `auth=1; expires=' + ${date.toUTCString()}; path=/`;
+    }
+
+    // login method
+    const login = () => {
+      const email = $form.find("#email").val()
+      const password = $form.find("#password").val()
+      $.ajax({
+        url: `http://${host}/api/login`,
+        data: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+        method: "POST",
+        dataType: "json"
+      })
+      .done((json) => {
+        window.localStorage.setItem("access-token", json.accessToken)
+        window.localStorage.setItem("refresh-token", json.refreshToken)
+        window.location.replace("./channelList.html")
+      })
+      .fail((xhr) => {
+        console.log("xhr", xhr.responseJSON)
+        alert(xhr.responseJSON.message)
+      })
+    }
+
+    // add Event Listener
+    $form.on("click", "#login-button", (e) => {
+      e.preventDefault()
+      login()
+    })
+
+
+    // add Event Listener
+    $form.on("click", "#join-button", (e) => {
+      e.preventDefault()
+      window.location.replace("./join.html")
+    })
+
+  })
+</script>
+
+</html>
